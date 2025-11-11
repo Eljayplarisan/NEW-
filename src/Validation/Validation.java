@@ -10,7 +10,7 @@ public class Validation {
     public void Register(){
         
         Config con = new Config();
-        System.out.print("Add user name: ");
+        System.out.print("Create user name: ");
         String name = Main.lp.nextLine();
         while(true){
             String qry = "SELECT * FROM tbl_main WHERE u_name = ?";
@@ -23,9 +23,9 @@ public class Validation {
                 name = Main.lp.next();
             }
         }
-        System.out.print("Add user email: ");
+        System.out.print(" Enter  Email: ");
         String email = Main.lp.nextLine();
-        System.out.print("Add user password: ");
+        System.out.print(" Enter password: ");
         String pass = Main.lp.nextLine();
     
         System.out.println("Choose role (1. Admin, 2. User 3. Staff): ");
@@ -44,9 +44,8 @@ public class Validation {
         con.addRecord(sql, name, email, pass, role, "Pending");
         
     }
-  public void login(){
-      
-      
+ public void login() {
+     
         System.out.print("Enter Email: ");
         String email = Main.lp.nextLine();
 
@@ -56,13 +55,18 @@ public class Validation {
         Config con = new Config();
         String role = con.login(email, pass);
 
-        if (role != null) {
-            if (role.equalsIgnoreCase("Admin")) {
-                Main.AdminDAshboard();
-            } else {
-                Main.Staff();
+            if (role != null) {
+                if (role.equalsIgnoreCase("Admin")) {
+                    Main.AdminDashboard();
+                } else if (role.equalsIgnoreCase("Staff")) {
+                    Main.Staff();
+                } else if (role.equalsIgnoreCase("User")) {
+                    Main.User();
+                }
             }
         }
+
     
     }   
-}
+
+

@@ -1,11 +1,11 @@
 
-package Userdashboard;
+package AdminDashboard;
 
 import Config.Config;
 import Main.Main;
 import static Main.Main.lp;
 
-public class Userdashboard {
+public class AdminDashboard {
     
     public void adduser(){
           

@@ -1,9 +1,9 @@
-
+ 
 package Main;
 
 import static Main.Main.lp;
 import Staff.Staff;
-import Userdashboard.Userdashboard;
+import AdminDashboard.AdminDashboard;
 import Validation.Validation;
 import java.util.Scanner;
 
@@ -42,10 +42,12 @@ public class Main {
       
 }
 
-public static void AdminDAshboard(){
+public static void AdminDashboard(){
     
-    
-     System.out.println("WELCOME TO THE ADMIM DASHBOARD");
+         System.out.println("------------------------------------");
+         System.out.println("-- WELCOME TO THE ADMIM DASHBOARD --");
+         System.out.println("------------------------------------");
+         
          System.out.println("1. Add User");
          System.out.println("2. View User");
          System.out.println("3. Update User");
@@ -58,7 +60,7 @@ public static void AdminDAshboard(){
          int option = lp.nextInt();
          lp.nextLine();
 
-        Userdashboard ud = new Userdashboard();
+        AdminDashboard ud = new AdminDashboard();
 
        switch(option){
        
@@ -96,12 +98,14 @@ public static void AdminDAshboard(){
   public static void Staff(){
       
       System.out.println("-------------------------");
-      System.out.println("-----Staff Dashboard-----");
+      System.out.println("---- Staff Dashboard ----");
       System.out.println("-------------------------");
      
        System.out.println("1. Add Books ");
        System.out.println("2. View Storage Books" );
        System.out.println("3. Delete Books ");
+       System.out.println("4. View return books ");
+       System.out.println("5. Exit ");
        
        System.out.println("Choose an option ");
        int option = Main.lp.nextInt();
@@ -112,10 +116,10 @@ public static void AdminDAshboard(){
        switch (option){
          
          case 1:
-             st.ADDBOOKS();
+             Staff.ADDBOOKS();
              break;
          case 2:
-             st.VIEW();
+             Staff.VIEW();
              break;
      
      
@@ -125,5 +129,38 @@ public static void AdminDAshboard(){
   
   
   }
+  
+  public static void User() {
+
+      System.out.println("--------------------------"); 
+      System.out.println("----- USER_DASHBAORD -----");
+      System.out.println("--------------------------"); 
+      
+      
+      System.out.println("1. Borrow Book ");
+      System.out.println("2. Return Book ");
+      System.out.println("3. Exit ");
+      
+      System.out.println("Choose an option");
+      int option = Main.lp.nextInt();
+      lp.nextLine();
+      
+
+       
+       switch (option){
+         
+         case 1:
+            
+             break;
+         case 2:
+   
+             break;
+     
+     
+     
+     
+     }
+       
+   }
 
 }
