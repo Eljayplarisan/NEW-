@@ -1,131 +1,194 @@
-
 package AdminDashboard;
 
 import Config.Config;
 import Main.Main;
 import static Main.Main.lp;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class AdminDashboard {
-    
-    public void adduser(){
-          
-       System.out.print("Add user name: ");
-       String name = Main.lp.nextLine();
-        if (name.isEmpty()) {
-            System.out.println(" Name cannot be empty!");
-            return; 
-        }
 
-        System.out.print("Add user email: ");
-        String email = Main.lp.nextLine();
-        if (email.isEmpty()) {
-            System.out.println(" Email cannot be empty!");
-            return;
-        } else if (!email.contains("@") || !email.contains(".")) {
-            System.out.println("Invalid email already exist please create another email!");
-            return;
-        }
+    // ================= ADD BOOKS WITH LOOP & VALIDATION =================
+    public void add_books() {
+        int continueChoice;
 
-        System.out.print("Add user password: ");
-        String pass = Main.lp.nextLine();
-        
-            if (pass.isEmpty()) {
-                System.out.println(" Password cannot be empty!");
-                return;
-            } else if (pass.length() < 4) {
-                System.out.println(" Password must be at least 4 characters!");
-                return;
+    do {
+        System.out.println("-----------------------");
+        System.out.println("-------ADD BOOKS-------");
+        System.out.println("-----------------------");
+
+        System.out.print("Enter Book Title: ");
+        String BT = Main.lp.nextLine();
+
+        System.out.print("Enter Book Author: ");
+        String BA = Main.lp.nextLine();
+
+        System.out.print("Enter Book Publisher: ");
+        String BP = Main.lp.nextLine();
+
+        System.out.print("Enter Book Year Published: ");
+        String BYP = Main.lp.nextLine();
+
+        try {
+            Connection conn = DriverManager.getConnection("jdbc:sqlite:library.db");
+
+            // Check if book already exists
+            String checkQuery = "SELECT * FROM tbl_storagebook WHERE b_title = ? AND b_author = ? AND b_publisher = ?";
+            PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+            checkStmt.setString(1, BT);
+            checkStmt.setString(2, BA);
+            checkStmt.setString(3, BP);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (rs.next()) {
+                // Book already exists
+                System.out.println("Book already exists in the library!");
+                System.out.print("Do you want to try again with a different book? (1 = Yes, 0 = Return to Admin Dashboard): ");
+                continueChoice = Main.lp.nextInt();
+                Main.lp.nextLine(); // consume newline
+
+                if (continueChoice == 0) {
+                    conn.close();
+                    break; // exit loop
+                } else {
+                    conn.close();
+                    continue; // restart the loop to input new book
+                }
             }
 
-        System.out.println("Choose role (1. Admin, 2. User 3. Staff): ");
-        int chooseRole = Main.lp.nextInt();
+            // If book does NOT exist, insert it
+            String sql = "INSERT INTO tbl_storagebook (b_title, b_author, b_publisher, b_yearpublished) VALUES(?, ?, ?, ?)";
+            PreparedStatement insertStmt = conn.prepareStatement(sql);
+            insertStmt.setString(1, BT);
+            insertStmt.setString(2, BA);
+            insertStmt.setString(3, BP);
+            insertStmt.setString(4, BYP);
 
-        String role = "";
-            if (chooseRole == 1) {
-                role = "Admin";
-             } else if (chooseRole == 2) {
-                role = "User";
-              } else if (chooseRole == 3) {
-                role = "Staff";
-              } else {
-                System.out.println(" Invalid role choice! Defaulting to User.");
-                role = "User";
+            int rows = insertStmt.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Book added successfully!");
+            } else {
+                System.out.println("Error adding the book.");
             }
 
-        Config con = new Config();
-        String sql = "INSERT INTO tbl_main(u_name, u_email, u_pass, u_role, u_status) VALUES(?, ?, ?, ?, ?)";
-        con.addRecord(sql, name, email, pass, role, "Pending");
+            conn.close();
 
-        System.out.println(" User registered successfully!");
-        
-    }
-     public void viewuser(){
-        
+            // Ask if user wants to add another book
+            System.out.print("Do you want to add another book? (1 = Yes, 0 = Return to Admin Dashboard): ");
+            continueChoice = Main.lp.nextInt();
+            Main.lp.nextLine(); // consume newline
+
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+            continueChoice = 0; // stop loop on error
+        }
+
+    } while (continueChoice == 1);
+
+    System.out.println("Exiting Add Books. Returning to Admin Dashboard...");
+}
+
+    // ================= VIEW BOOKS =================
+    public void view_books() {
         Config con = new Config();
-        String UserQuery = "SELECT * FROM tbl_main";
-        String[] UserHeaders = {"ID","NAME", "EMAIL", "PASSWORD", "ROLE", "STATUS"};
-        String[] UserColumns = {"u_id","u_name", "u_email", "u_pass", "u_role","u_status"};
-        
+        String UserQuery = "SELECT * FROM tbl_storagebook";
+        String[] UserHeaders = {"ID", "Book Title", "Book Author", "Book Publisher", "Book Year Published"};
+        String[] UserColumns = {"book_id", "b_title", "b_author", "b_publisher", "b_yearpublished"};
+
         con.viewRecords(UserQuery, UserHeaders, UserColumns);
-    } 
-     
-      public void updateuser(){
-        
+    }
+
+    // ================= UPDATE BOOK =================
+    public void updateuser() {
         System.out.print("Enter id to update: ");
         int uid = Main.lp.nextInt();
         Main.lp.nextLine();
-       System.out.print("Add user name: ");
-        String name = Main.lp.nextLine();
-        
-        System.out.print("Enter user email: ");
-        String email = Main.lp.nextLine();
-        
-        System.out.print("Enter Password: ");
-        String pass = Main.lp.nextLine();
-        
+
+        System.out.print("Add Books Title: ");
+        String BT = Main.lp.nextLine();
+
+        System.out.print("Add Book Author: ");
+        String BA = Main.lp.nextLine();
+
+        System.out.print("Enter Book Publisher: ");
+        String BP = Main.lp.nextLine();
+
+        System.out.print("Enter Book Year Published: ");
+        String BYP = Main.lp.nextLine();
+
         Config con = new Config();
-        String sqlUpdate = "UPDATE tbl_main SET u_name = ?, u_email = ?, u_pass = ? WHERE u_id = ?";
-        con.updateRecord(sqlUpdate, name, email, pass, uid);
+        String sqlUpdate = "UPDATE tbl_storagebook SET b_title = ?, b_author = ?, b_publisher = ?, b_yearpublished = ? WHERE book_id = ?";
+        con.updateRecord(sqlUpdate, BT, BA, BP, BYP, uid);
     }
-      
-      
-        public void deleteuser(){
-        
+
+    // ================= DELETE USER =================
+    public void deleteuser() {
         System.out.print("Enter id to delete: ");
         int did = Main.lp.nextInt();
-        
+
         Config con = new Config();
         String sqlDelete = "DELETE FROM tbl_main WHERE u_id = ?";
         con.deleteRecord(sqlDelete, did);
-        
     }
-    
-    public void approveuser(){
-    
-            System.out.println("Enter id to approved");
-            int id = lp.nextInt();
-            Main.lp.nextLine();
-            
-            
-            Config con = new Config();
-            
-            String sqlupdate = "UPDATE tbl_main SET u_status = ? WHERE u_id = ?";
-            con.updateRecord(sqlupdate, "Approved", id);
-    }
-    
-     public void addbooks(){
-     
-         System.out.println("Enter the name of book to add: ");
-         String nba = Main.lp.nextLine();
-         
-         System.out.println("Enter the Book author: ");
-         String Ba = Main.lp.nextLine();
-         
-        Config con = new Config();
-        String sql = "INSERT INTO tbl_book (b_name, b_author) VALUES(?,?)";
-        con.addRecord(sql, nba, Ba);
 
-     
-     }
-    
+    // ================= APPROVE USER =================
+    public void approveuser() {
+        System.out.print("Enter id to approve: ");
+        int id = Main.lp.nextInt();
+        Main.lp.nextLine();
+
+        Config con = new Config();
+        String sqlUpdate = "UPDATE tbl_main SET u_status = ? WHERE u_id = ?";
+        con.updateRecord(sqlUpdate, "Approved", id);
+    }
+
+    // ================= BORROW BOOK (simplified add) =================
+    public void addbooks() {
+        System.out.print("Enter the name of book to add: ");
+        String nba = Main.lp.nextLine();
+
+        System.out.print("Enter the Book author: ");
+        String Ba = Main.lp.nextLine();
+
+        Config con = new Config();
+        String sql = "INSERT INTO tbl_book (b_name, b_author) VALUES(?, ?)";
+        con.addRecord(sql, nba, Ba);
+    }
+
+    // ================= VIEW BORROWED BOOKS =================
+    public static void viewBorrowedBooksAdmin() {
+        String joinQuery = "SELECT s.book_id, s.b_title, s.b_author, s.b_publisher, " +
+                           "s.b_yearpublished, s.status, b.borrower_name, b.date_borrowed " +
+                           "FROM tbl_storagebook s " +
+                           "LEFT JOIN tbl_borrowed b ON s.book_id = b.book_id " +
+                           "ORDER BY s.book_id";
+
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:library.db")) {
+            PreparedStatement stmt = conn.prepareStatement(joinQuery);
+            ResultSet rs = stmt.executeQuery();
+
+            System.out.println("ID | Title | Author | Publisher | Year | Status | Borrower | Date Borrowed");
+            System.out.println("----------------------------------------------------------------------------------");
+
+            while (rs.next()) {
+                System.out.println(rs.getInt("book_id") + " | " +
+                                   rs.getString("b_title") + " | " +
+                                   rs.getString("b_author") + " | " +
+                                   rs.getString("b_publisher") + " | " +
+                                   rs.getString("b_yearpublished") + " | " +
+                                   rs.getString("status") + " | " +
+                                   (rs.getString("borrower_name") != null ? rs.getString("borrower_name") : "N/A") + " | " +
+                                   (rs.getString("date_borrowed") != null ? rs.getString("date_borrowed") : "N/A"));
+            }
+
+            System.out.println("\nPress ENTER to return to Dashboard...");
+            Main.lp.nextLine();
+
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
 }

@@ -32,13 +32,19 @@ public class Validation {
         int chooseRole = Main.lp.nextInt();
         
         String role = "";
-            if(chooseRole == 1){
+        switch (chooseRole) {
+            case 1:
                 role = "Admin";
-            }else if (chooseRole == 2){
+                break;
+            case 2:
                 role = "User";
-            } else if (chooseRole == 3){
+                break;
+            case 3:
                 role = "Staff";
-            }
+                break;
+            default:
+                break;
+        }
        
         String sql = "INSERT INTO tbl_main (u_name, u_email, u_pass, u_role, u_status) VALUES(?, ?, ?, ?, ?)";
         con.addRecord(sql, name, email, pass, role, "Pending");
