@@ -1,4 +1,4 @@
-package UserDashboard;
+package BorrowerDashboard;
 
 import Config.Config;
 import Main.Main;
@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class UserDashboard {
+public class BorrowerDashboard {
 
     // ---------------- Borrow Books ----------------
     public static void borrow_Books() {
@@ -94,16 +94,19 @@ public class UserDashboard {
 }
 
     // ---------------- Return Books ----------------
-    public static void return_books() {
+ public static void return_books() {
+
+    while (true) { // LOOP FOR MULTIPLE RETURNS
+
         System.out.print("Enter Book ID to Return: ");
         String bir = Main.lp.nextLine();
 
         if (bir.isEmpty()) {
             System.out.println("Book ID cannot be empty!");
-            return;
+            continue;
         } else if (!bir.matches("\\d+")) {
             System.out.println("Invalid Book ID! Numbers only.");
-            return;
+            continue;
         }
 
         int bookId = Integer.parseInt(bir);
@@ -111,20 +114,22 @@ public class UserDashboard {
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:library.db")) {
 
             // Check if book exists
-            String checkQuery = "SELECT status FROM tbl_storagebook WHERE book_id = ?";
+            String checkQuery = "SELECT b_title, status FROM tbl_storagebook WHERE book_id = ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
             checkStmt.setInt(1, bookId);
             ResultSet rs = checkStmt.executeQuery();
 
             if (!rs.next()) {
                 System.out.println("Book ID does not exist!");
-                return;
+                continue;
             }
 
+            String bookTitle = rs.getString("b_title");
             String currentStatus = rs.getString("status");
+
             if ("Available".equalsIgnoreCase(currentStatus)) {
                 System.out.println("This book is not borrowed!");
-                return;
+                continue;
             }
 
             // Update book status to Available
@@ -134,9 +139,12 @@ public class UserDashboard {
             int rows = updateStmt.executeUpdate();
 
             if (rows > 0) {
-                System.out.println("Book successfully returned!\n");
+                System.out.println("\nBook successfully returned!");
+                System.out.println("Returned Book Title: " + bookTitle);
+                System.out.println("Enter Book Title: "); // Your requested text
+                System.out.println("-------------------------------------------");
 
-                // Display the tbl_borrowed table
+                // Display tbl_borrowed table
                 String borrowedQuery = "SELECT * FROM tbl_borrowed";
                 PreparedStatement borrowedStmt = conn.prepareStatement(borrowedQuery);
                 ResultSet borrowedRs = borrowedStmt.executeQuery();
@@ -154,9 +162,6 @@ public class UserDashboard {
                     );
                 }
 
-                System.out.println("\nPress ENTER to continue...");
-                Main.lp.nextLine();
-
             } else {
                 System.out.println("Error returning the book.");
             }
@@ -164,7 +169,20 @@ public class UserDashboard {
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
+
+        // ASK USER IF THEY WANT TO RETURN AGAIN
+        System.out.print("\nDo you want to return another book? (1 = Yes, 0 = No): ");
+        String choice = Main.lp.nextLine();
+
+        if (!choice.equals("1")) {
+            System.out.println("Returning to User Dashboard...");
+            return; // EXIT METHOD → Back to User Dashboard
+        }
+
+        System.out.println("\n--- Return Book Again ---\n");
     }
+}
+
 
     // ---------------- View Books ----------------
     public static void View() {
@@ -214,8 +232,8 @@ public class UserDashboard {
     public static void viewBorrowedBooks() {
         Config con = new Config();
         String BorrowedQuery = "SELECT * FROM tbl_borrowed";
-        String[] BorrowedHeaders = {"Borrow ID", "Book ID", "Book Title", "Borrower Name", "Date Borrowed"};
-        String[] BorrowedColumns = {"borrow_id", "book_id", "book_title", "borrower_name", "date_borrowed"};
+        String[] BorrowedHeaders = {"ID", "Book ID", "Book Title", "Borrower Name", "Date Borrowed"};
+        String[] BorrowedColumns = {"book_id", "book_id", "book_title", "borrower_name", "date_borrowed"};
 
         con.viewRecords(BorrowedQuery, BorrowedHeaders, BorrowedColumns);
     }

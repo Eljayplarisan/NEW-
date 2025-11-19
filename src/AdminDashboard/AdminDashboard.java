@@ -102,7 +102,7 @@ public class AdminDashboard {
     }
 
     // ================= UPDATE BOOK =================
-    public void updateuser() {
+    public void updatebook() {
         System.out.print("Enter id to update: ");
         int uid = Main.lp.nextInt();
         Main.lp.nextLine();
@@ -125,17 +125,52 @@ public class AdminDashboard {
     }
 
     // ================= DELETE USER =================
-    public void deleteuser() {
-        System.out.print("Enter id to delete: ");
-        int did = Main.lp.nextInt();
+ public void deletebook() {
 
+    while (true) {  // LOOP for multi-delete
+
+        String input;
+
+        // Validation loop for ID
+        while (true) {
+            System.out.print("Enter user ID to delete: ");
+            input = Main.lp.nextLine();
+
+            if (input.isEmpty()) {
+                System.out.println("ID cannot be empty!");
+            } else if (!input.matches("\\d+")) {
+                System.out.println("Invalid input! Numbers only.");
+            } else {
+                break; // valid number
+            }
+        }
+
+        int did = Integer.parseInt(input);
+
+        // Delete the user
         Config con = new Config();
         String sqlDelete = "DELETE FROM tbl_main WHERE u_id = ?";
         con.deleteRecord(sqlDelete, did);
+
+        System.out.println("User deleted successfully (if it existed).");
+
+        // Ask if they want to delete again
+        System.out.print("\nDo you want to delete another user? (1 = Yes, 0 = No): ");
+        String choice = Main.lp.nextLine();
+
+        if (!choice.equals("1")) {
+            System.out.println("Returning to Staff Dashboard...");
+            return;   // Exit the method
+        }
+
+        System.out.println("\n--- Delete Another User ---\n");
     }
+}
+
 
     // ================= APPROVE USER =================
     public void approveuser() {
+        
         System.out.print("Enter id to approve: ");
         int id = Main.lp.nextInt();
         Main.lp.nextLine();
@@ -144,22 +179,9 @@ public class AdminDashboard {
         String sqlUpdate = "UPDATE tbl_main SET u_status = ? WHERE u_id = ?";
         con.updateRecord(sqlUpdate, "Approved", id);
     }
-
-    // ================= BORROW BOOK (simplified add) =================
-    public void addbooks() {
-        System.out.print("Enter the name of book to add: ");
-        String nba = Main.lp.nextLine();
-
-        System.out.print("Enter the Book author: ");
-        String Ba = Main.lp.nextLine();
-
-        Config con = new Config();
-        String sql = "INSERT INTO tbl_book (b_name, b_author) VALUES(?, ?)";
-        con.addRecord(sql, nba, Ba);
-    }
-
     // ================= VIEW BORROWED BOOKS =================
     public static void viewBorrowedBooksAdmin() {
+        
         String joinQuery = "SELECT s.book_id, s.b_title, s.b_author, s.b_publisher, " +
                            "s.b_yearpublished, s.status, b.borrower_name, b.date_borrowed " +
                            "FROM tbl_storagebook s " +
@@ -190,5 +212,17 @@ public class AdminDashboard {
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
         }
+    }
+    
+     public static void viewmain(){
+         
+        Config con = new Config();
+
+        String UserQuery = "SELECT * FROM tbl_main";
+        String[] UserHeaders = {"ID", "Username", "Email", "Password", "Role", "Status"};
+        String[] UserColumns = {"u_id", "u_name", "u_email", "u_pass", "u_role", "u_status"};
+
+         con.viewRecords(UserQuery, UserHeaders, UserColumns);
+        
     }
 }

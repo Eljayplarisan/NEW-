@@ -96,14 +96,43 @@ public class Staff {
 
     // ---------------- Delete Book ----------------
     public static void Delete() {
-        System.out.print("Enter book ID to delete: ");
-        int did = Main.lp.nextInt();
-        Main.lp.nextLine(); // consume newline
+        
+    while (true) {  // loop for multi-delete
+
+        String input;
+
+        // Validate numeric input
+        while (true) {
+            System.out.print("Enter book ID to delete: ");
+            input = Main.lp.nextLine();
+
+            if (input.isEmpty()) {
+                System.out.println("Book ID cannot be empty!");
+            } else if (!input.matches("\\d+")) {
+                System.out.println("Invalid input! Numbers only.");
+            } else {
+                break; // valid number
+            }
+        }
+
+        int did = Integer.parseInt(input);
 
         Config con = new Config();
         String sqlDelete = "DELETE FROM tbl_storagebook WHERE book_id = ?";
         con.deleteRecord(sqlDelete, did);
 
         System.out.println("Book deleted successfully (if it existed).");
+
+        // Ask if they want to delete again
+        System.out.print("\nDo you want to delete another book? (1 = Yes, 0 = No): ");
+        String choice = Main.lp.nextLine();
+
+        if (!choice.equals("1")) {
+            System.out.println("Returning to Staff Dashboard...");
+            return; // exit → back to staff dashboard
+        }
+
+        System.out.println("\n--- Delete Another Book ---\n");
+    }
     }
 }
